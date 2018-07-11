@@ -7,13 +7,12 @@ import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
-import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectPackage;
-import static org.junit.platform.engine.discovery.PackageNameFilter.excludePackageNames;
-import static org.junit.platform.engine.discovery.PackageNameFilter.includePackageNames;
-import static org.junit.platform.launcher.TagFilter.excludeTags;
-import static org.junit.platform.launcher.TagFilter.includeTags;
 
 public class TestRunner {
 
@@ -23,7 +22,7 @@ public class TestRunner {
 
         // test that this package does not exists
         Package pack = Package.getPackage("testcases.subpackage");
-        assert pack == null;
+        assertNull(pack);
 
         URL testJar = new URL("jar:file:" + file + "!/");
 //        addURL(jar); // works OK, because URL start with "file:/path/junit-test-1.1.jar"
@@ -31,10 +30,10 @@ public class TestRunner {
 
         // test that this package exists
         pack = Package.getPackage("testcases.subpackage");
-        assert pack != null; // if ok it's mean, that this URL is valid
+        assertNotNull(pack); // if ok it's mean, that this URL is valid
 
         // compare that these 2 paths does not equal
-        assert !jar.toString().equals(testJar.toString());
+        assertNotEquals(jar.toString(), testJar.toString());
         System.out.println(jar);
         System.out.println(testJar);
 
@@ -49,7 +48,7 @@ public class TestRunner {
         launcher.execute(request);
 
         // assert that 4 tests were executed
-        assert 4 == listener.getSummary().getTestsStartedCount();
+        assertEquals(4, listener.getSummary().getTestsStartedCount());
     }
 
     // add URL to classpath
@@ -58,5 +57,6 @@ public class TestRunner {
         Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
         method.setAccessible(true);
         method.invoke(systemClassLoader, url);
+        Class.forName("testcases.subpackage.TestClass2");
     }
 }
